@@ -95,7 +95,6 @@ lazy val chapter08a = project
       "com.lightbend.akka.management" %% "akka-management-cluster-http" % AkkaManagementVersion,
       "com.typesafe.akka" %% "akka-cluster-sharding" % AkkaVersion,
       "com.typesafe.akka" %% "akka-discovery" % AkkaVersion
-
     ),
   )
 
@@ -210,7 +209,15 @@ lazy val chapter10b = project
         scalaVersion := ScalaVersion, 
         libraryDependencies ++= Seq(
           "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion,
-          "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion, 
+          "com.typesafe.akka" %% "akka-discovery" % AkkaVersion,
+          "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
+          "com.typesafe.akka" %% "akka-cluster-sharding" % AkkaVersion,
+          "com.typesafe.akka" %% "akka-cluster-sharding-typed" % AkkaVersion,
+          "com.typesafe.akka" %% "akka-persistence-typed" % AkkaVersion,
+          "com.typesafe.akka" %% "akka-persistence-testkit" % AkkaVersion % Test,
+          "com.lightbend.akka.management" %% "akka-management" % AkkaManagementVersion,
+          "com.lightbend.akka.management" %% "akka-management-cluster-http" % AkkaManagementVersion,
+          "com.typesafe.akka" %% "akka-persistence-query" % AkkaVersion,
           "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
           "com.lightbend.akka" %% "akka-persistence-jdbc" % "5.0.0",
           "org.postgresql" % "postgresql" % "42.2.18",
@@ -223,8 +230,6 @@ lazy val chapter10b = project
           )
 
     )
-
-
 
 lazy val chapter11a = project
     .in(file("chapter11a"))
@@ -239,6 +244,7 @@ lazy val chapter11a = project
         "ch.qos.logback" % "logback-classic" % LogbackVersion
         )
     )
+
 lazy val chapter11b = project
     .in(file("chapter11b"))
     .enablePlugins(AkkaGrpcPlugin)
@@ -252,7 +258,6 @@ lazy val chapter11b = project
         "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
         "ch.qos.logback" % "logback-classic" % LogbackVersion,
       ))
-
 
 lazy val chapter11c = project
     .in(file("chapter11c"))

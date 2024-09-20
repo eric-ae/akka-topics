@@ -69,6 +69,7 @@ object SPContainer {
   def eventHandler(state: State, event: Event): State =
     event match {
       case CargoAdded(containerId, cargo) =>
+        println(s"eventHandler: $containerId, $cargo")
         state.copy(cargos = cargo +: state.cargos)
     }
 }

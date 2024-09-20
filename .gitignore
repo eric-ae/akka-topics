@@ -3,3 +3,5 @@ target
 *.sublime-project
 .DS_Store
 
+.idea
+.bsp

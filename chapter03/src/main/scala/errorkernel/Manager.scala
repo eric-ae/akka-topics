@@ -18,20 +18,18 @@ object Manager {
         context.messageAdapter(response =>
           WorkerDoneAdapter(response))
 
-      Behaviors.receiveMessage { message =>
-        message match {
-          case Delegate(texts) =>
-            texts.map { text =>
-              val worker: ActorRef[Worker.Command] =
-                context.spawn(Worker(), s"worker$text")
-              context.log.info(s"sending text '${text}' to worker")
-              worker ! Worker.Parse(adapter, text)
-            }
-            Behaviors.same
-          case WorkerDoneAdapter(Worker.Done(text)) =>
-            context.log.info(s"text '$text' has been finished")
-            Behaviors.same
-        }
+      Behaviors.receiveMessage {
+        case Delegate(texts) =>
+          texts.foreach { text =>
+            val worker: ActorRef[Worker.Command] =
+              context.spawn(Worker(), s"worker$text")
+            context.log.info(s"sending text '${text}' to worker")
+            worker ! Worker.Parse(adapter, text)
+          }
+          Behaviors.same
+        case WorkerDoneAdapter(Worker.Done(text)) =>
+          context.log.info(s"text '$text' has been finished")
+          Behaviors.same
       }
     }
 }

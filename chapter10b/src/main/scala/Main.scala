@@ -16,5 +16,6 @@ object Main extends App {
 
   val source: Source[String, NotUsed] = readJournal.persistenceIds
 
-  source.runForeach(println)
+  println("**Persistence IDs:")
+  source.take(100).runForeach(println)
 }

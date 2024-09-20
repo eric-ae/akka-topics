@@ -1,3 +1,3 @@
-package example.countwords
+package countwords
 
 trait CborSerializable

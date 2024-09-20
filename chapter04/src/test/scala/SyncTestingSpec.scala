@@ -31,8 +31,7 @@ class SyncTestingSpec extends AnyWordSpec with Matchers {
     "actor gets forwarded message from manager" in {
       val testKit = BehaviorTestKit(SimplifiedManager())
       val probe = TestInbox[String]()
-      testKit.run(
-        SimplifiedManager.Forward("message-to-parse", probe.ref))
+      testKit.run(SimplifiedManager.Forward("message-to-parse", probe.ref))
       probe.expectMessage("message-to-parse")
       probe.hasMessages shouldBe false
     }

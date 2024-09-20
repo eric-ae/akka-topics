@@ -1,6 +1,6 @@
 package async
 
-import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import akka.actor.testkit.typed.scaladsl.{ActorTestKit, TestProbe}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -19,9 +19,8 @@ class AsyncForwardSpec
     "actor gets forwarded message from manager" in {
       val manager = testKit.spawn(SimplifiedManager())
       val probe = testKit.createTestProbe[String]()
-      manager ! SimplifiedManager.Forward(
-        "message-to-parse",
-        probe.ref)
+      val probe2 = TestProbe()(testKit.system)
+      manager ! SimplifiedManager.Forward("message-to-parse", probe.ref)
       probe.expectMessage("message-to-parse")
     }
   }
@@ -34,8 +33,7 @@ class AsyncForwardSpec
       val behaviorUnderTest = Behaviors.receiveMessage[String] { _ =>
         Behaviors.ignore
       }
-      val behaviorMonitored =
-        Behaviors.monitor(probe.ref, behaviorUnderTest)
+      val behaviorMonitored = Behaviors.monitor(probe.ref, behaviorUnderTest)
       val actor = testKit.spawn(behaviorMonitored)
 
       actor ! "checking"

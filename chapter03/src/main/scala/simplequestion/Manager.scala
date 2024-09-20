@@ -19,25 +19,23 @@ object Manager {
     Behaviors.setup { context =>
       implicit val timeout: Timeout = Timeout(3, SECONDS)
 
-      Behaviors.receiveMessage { message =>
-        message match {
-          case Delegate(texts) =>
-            texts.map { text =>
-              val worker: ActorRef[Worker.Command] =
-                context.spawn(Worker(text), s"worker-$text")
-              context.ask(worker, Worker.Parse) {
-                case Success(Worker.Done) =>
-                  Report(s"$text read by ${worker.path.name}")
-                case Failure(ex) =>
-                  Report(
-                    s"parsing '$text' has failed with [${ex.getMessage()}")
-              }
+      Behaviors.receiveMessage {
+        case Delegate(texts) =>
+          texts.foreach { text =>
+            val worker: ActorRef[Worker.Command] =
+              context.spawn(Worker(text), s"worker-$text")
+
+            context.ask(worker, Worker.Parse) {
+              case Success(Worker.Done) =>
+                Report(s"$text read by ${worker.path.name}")
+              case Failure(ex) =>
+                Report(s"parsing '$text' has failed with [${ex.getMessage}")
             }
-            Behaviors.same
-          case Report(description) =>
-            context.log.info(description)
-            Behaviors.same
-        }
+          }
+          Behaviors.same
+        case Report(description) =>
+          context.log.info(description)
+          Behaviors.same
       }
     }
 }

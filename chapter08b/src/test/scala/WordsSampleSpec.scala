@@ -1,4 +1,4 @@
-package example.countwords
+package countwords
 
 import akka.actor.testkit.typed.scaladsl.{
   LogCapturing,

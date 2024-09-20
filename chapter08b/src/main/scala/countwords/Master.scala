@@ -1,4 +1,4 @@
-package example.countwords
+package countwords
 
 import akka.actor.typed.{ ActorRef, Behavior }
 import akka.actor.typed.scaladsl.Behaviors
@@ -26,28 +26,23 @@ object Master {
   def working(
       workersRouter: ActorRef[Worker.Command],
       countedWords: Map[String, Int] = Map(),
-      lag: Vector[String] = Vector()): Behavior[Event] =
-    Behaviors.setup[Event] { context =>
+      lag: Vector[String] = Vector()): Behavior[Event] = Behaviors.setup[Event] { context =>
 
       implicit val timeout: Timeout = 3.seconds
-      val paralellism =
-        context.system.settings.config
+      val paralellism = context.system.settings.config
           .getInt("example.countwords.delegation-parallelism")
 
       Behaviors.receiveMessage[Event] {
         case Tick =>
           context.log.debug(s"tick, current lag ${lag.size} ")
-
           val text = "this simulates a stream, a very simple stream"
           val allTexts = lag :+ text
-          val (firstPart, secondPart) =
-            allTexts.splitAt(paralellism)
-          firstPart.map { text =>
+          val (firstPart, secondPart) = allTexts.splitAt(paralellism)
+          firstPart.foreach { text =>
             context.ask(workersRouter, Worker.Process(text, _)) {
-              case Success(CountedWords(map)) =>
-                CountedWords(map)
-              case Failure(ex) =>
-                FailedJob(text)
+              case Success(CountedWords(map)) => CountedWords(map)
+              case Failure(ex) => FailedJob(text)
+              case Success(_) => throw new IllegalStateException("Unexpected response")
             }
           }
           working(workersRouter, countedWords, secondPart)
@@ -56,8 +51,7 @@ object Master {
           context.log.debug(s"current count ${merged.toString} ")
           working(workersRouter, merged, lag)
         case FailedJob(text) =>
-          context.log.debug(
-            s"failed, adding text to lag ${lag.size} ")
+          context.log.debug(s"failed, adding text to lag ${lag.size} ")
           working(workersRouter, countedWords, lag :+ text)
       }
     }

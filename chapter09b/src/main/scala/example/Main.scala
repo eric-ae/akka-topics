@@ -31,7 +31,21 @@ object Main {
     val system = ActorSystem[Nothing](Behaviors.empty, "containers")
     try {
       val shardRegion = init(system)
-      commandLoop(system, shardRegion)
+//      commandLoop(system, shardRegion)
+      val cargos = Map(
+        "9" -> SPContainer.Cargo("456", "sack", 22),
+        "9" -> SPContainer.Cargo("456", "bigbag", 15),
+        "11" -> SPContainer.Cargo("499", "barrel", 120))
+      println("Adding cargos")
+      cargos.foreach {
+        case (containerId, cargo) =>
+          shardRegion ! ShardingEnvelope(
+            containerId,
+            SPContainer.AddCargo(cargo))
+      }
+      println("press Enter to terminate")
+      StdIn.readLine()
+      system.terminate()
     } catch {
       case NonFatal(ex) =>
         logger.error(s"terminating by NonFatal Exception", ex)

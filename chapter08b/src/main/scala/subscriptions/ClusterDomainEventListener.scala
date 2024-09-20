@@ -1,6 +1,6 @@
 package subscriptions
 
-import akka.actor.typed.PostStop
+import akka.actor.typed.{Behavior, PostStop}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ClusterEvent.ClusterDomainEvent
 import akka.cluster.ClusterEvent.MemberExited
@@ -13,9 +13,11 @@ import akka.cluster.typed.Cluster
 import akka.cluster.typed.Subscribe
 import akka.cluster.typed.Unsubscribe
 
+object EventA extends ClusterDomainEvent
+
 object ClusterDomainEventListener {
 
-  def apply() = Behaviors.setup[ClusterDomainEvent] { context =>
+  def apply(): Behavior[ClusterDomainEvent] = Behaviors.setup[ClusterDomainEvent] { context =>
     Cluster(context.system).subscriptions ! Subscribe(
       context.self,
       classOf[ClusterDomainEvent])

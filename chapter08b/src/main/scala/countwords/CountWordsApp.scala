@@ -1,4 +1,4 @@
-package example.countwords
+package countwords
 
 import akka.cluster.typed.{ Cluster, Subscribe }
 import akka.cluster.typed.SelfUp
@@ -10,11 +10,9 @@ object CountWordsApp {
 
   def main(args: Array[String]): Unit = {
     if (args.isEmpty) {
-      startup("worker", 0)
+      startup("aggregator", 0)
     } else {
-      require(
-        args.size == 2,
-        "Usage: two params required 'role' and 'port'")
+      require(args.length == 2, "Usage: two params required 'role' and 'port'")
       startup(args(0), args(1).toInt)
     }
   }
@@ -28,11 +26,9 @@ object CountWordsApp {
       """)
       .withFallback(ConfigFactory.load("words"))
 
-    val guardian =
-      ActorSystem(ClusteredGuardian(), "WordsCluster", config)
+    val guardian = ActorSystem(ClusteredGuardian(), "WordsCluster", config)
 
-    println(
-      "#################### press ENTER to terminate ###############")
+    println("#################### press ENTER to terminate ###############")
     scala.io.StdIn.readLine()
     guardian.terminate()
   }
@@ -45,13 +41,10 @@ object CountWordsApp {
         val cluster = Cluster(context.system)
         if (cluster.selfMember.hasRole("director")) {
           // instead of cluster.registerOnMemberUp now on typed
-          Cluster(context.system).subscriptions ! Subscribe(
-            context.self,
-            classOf[SelfUp])
+          Cluster(context.system).subscriptions ! Subscribe(context.self, classOf[SelfUp])
         }
         if (cluster.selfMember.hasRole("aggregator")) {
-          val numberOfWorkers =
-            context.system.settings.config
+          val numberOfWorkers = context.system.settings.config
               .getInt("example.countwords.workers-per-node")
           for (i <- 0 to numberOfWorkers) {
             //with supervision resume
@@ -61,8 +54,7 @@ object CountWordsApp {
         Behaviors.receiveMessage {
           case SelfUp(_) =>
             val router = context.spawnAnonymous {
-              Routers
-                .group(Worker.RegistrationKey)
+              Routers.group(Worker.RegistrationKey)
             }
             context.spawn(Master(router), "master")
             Behaviors.same

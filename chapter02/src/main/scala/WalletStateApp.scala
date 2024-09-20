@@ -9,6 +9,7 @@ object WalletStateApp extends App {
   guardian ! WalletState.Increase(1)
   guardian ! WalletState.Increase(1)
   guardian ! WalletState.Increase(1)
+//  guardian ! WalletState.Increase(1)
 
   println("Press ENTER to terminate")
   scala.io.StdIn.readLine()

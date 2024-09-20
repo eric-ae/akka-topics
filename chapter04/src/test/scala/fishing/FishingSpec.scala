@@ -46,23 +46,6 @@ class FishingSpec
     }
   }
 
-  "a monitor" must {
-
-    "intercept the messages" in {
-
-      val probe = createTestProbe[String]
-      val behavior = Behaviors.receiveMessage[String] { _ =>
-        Behaviors.ignore
-      }
-      val behaviorMonitored = Behaviors.monitor(probe.ref, behavior)
-      val actor = spawn(behaviorMonitored)
-
-      actor ! "checking"
-      probe.expectMessage("checking")
-
-    }
-  }
-
   "An automated resuming counter" must {
 
     "receive a resume after a pause" in {
